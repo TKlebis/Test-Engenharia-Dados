@@ -245,6 +245,8 @@ FROM [dbo].[Sales.SalesOrderDetail_modified]
 GROUP BY SalesOrderID
 HAVING COUNT(*) >= 3;
 ```
+![query1](https://github.com/TKlebis/Test-Engenharia-Dados/assets/130613291/8af0e9d4-6e8e-402d-8670-ad3241e236c5)
+
 ### 2. Os 3 Produtos Mais Vendidos por Dias para Manufatura
 ```sql
 SELECT TOP 3 pp.Name AS ProductName, pp.DaysToManufacture, SUM(sod.OrderQty) AS TotalQuantitySold
@@ -253,6 +255,8 @@ INNER JOIN [dbo].[Production.Product_modified] pp ON sod.ProductID = pp.producti
 GROUP BY pp.Name, pp.DaysToManufacture
 ORDER BY SUM(sod.OrderQty) DESC;
 ```
+![query-2](https://github.com/TKlebis/Test-Engenharia-Dados/assets/130613291/b52d83a2-8e2e-4c97-8a2e-28fea2774287)
+
 ### 3. Lista de Clientes e Contagem de Pedidos
 ```sql
 Select p.FirstName, p.LastName, COUNT(soh.SalesOrderID) as ContagemPedidos
@@ -261,6 +265,8 @@ Join [dbo].[Sales.Customer_modified] c ON p.BusinessEntityID = c.PersonID
 JOIN [dbo].[salesorderheader] soh ON c.CustomerID = soh.CustomerID
 GROUP BY p.FirstName, p.LastName;
 ```
+![query-3](https://github.com/TKlebis/Test-Engenharia-Dados/assets/130613291/9a31f78e-47fc-451d-b42e-4761bdb25305)
+
 ### 4. Soma Total de Produtos por ProductID e OrderDate
 ```sql
 SELECT 
@@ -278,6 +284,7 @@ GROUP BY
 ORDER BY 
     soh.orderdate, pp.productid;
 ```
+![query4](https://github.com/TKlebis/Test-Engenharia-Dados/assets/130613291/7e65bb6f-1c6f-45d6-809d-35dc186c3830)
 
 ### 5. Lista de Ordens em Setembro de 2011 com Total Devido Acima de 1.000
 
@@ -287,6 +294,7 @@ FROM [dbo].[salesorderheader]
 WHERE YEAR(orderdate) = 2011 AND MONTH(orderdate) = 9 AND totaldue > 1000
 ORDER BY totaldue DESC;
 ```
+![query5](https://github.com/TKlebis/Test-Engenharia-Dados/assets/130613291/b00b5cf9-64b8-4098-a7da-8bc54cdafa39)
 
 ## 🚀 Contribuições
 
