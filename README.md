@@ -127,7 +127,7 @@ df6.to_csv('/content/Production.Product_modified.csv', sep=';', index=False)
 ## 🗄️ As tabelas correspondentes foram criadas em um banco de dados SQL
 
 ```sql
-CREATE TABLE sales_order_header (
+CREATE TABLE [dbo].[salesorderheader] (
     SalesOrderID serial PRIMARY KEY,
     RevisionNumber integer,
     OrderDate date,
@@ -156,7 +156,7 @@ CREATE TABLE sales_order_header (
     ModifiedDate date
 );
 
-CREATE TABLE production_product (
+CREATE TABLE [dbo].[Production.Product_modified]  (
     product_id serial PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     product_number VARCHAR(50) NOT NULL,
@@ -184,7 +184,7 @@ CREATE TABLE production_product (
     modified_date TIMESTAMP NOT NULL
 );
 
-CREATE TABLE person (
+CREATE TABLE [dbo].[Person.Person_modified] (
     BusinessEntityID INT,
     PersonType VARCHAR(255),
     NameStyle INT,
@@ -200,7 +200,7 @@ CREATE TABLE person (
     ModifiedDate TIMESTAMP
 );
 
-CREATE TABLE customer (
+CREATE TABLE [dbo].[Sales.Customer_modified]r (
     CustomerID INT PRIMARY KEY,
     PersonID INT,
     StoreID INT,
@@ -210,7 +210,7 @@ CREATE TABLE customer (
     ModifiedDate TIMESTAMP
 );
 
-CREATE TABLE sales_order_detail (
+CREATE TABLE [dbo].[Sales.SalesOrderDetail_modified] (
     SalesOrderID INT,
     SalesOrderDetailID INT,
     CarrierTrackingNumber VARCHAR(255),
@@ -224,7 +224,7 @@ CREATE TABLE sales_order_detail (
     ModifiedDate TIMESTAMP
 );
 
-CREATE TABLE specialofferproduct (
+CREATE TABLE [dbo].[Sales.SpecialOfferProduct_modified] (
     SpecialOfferID integer,
     ProductID integer,
     rowguid uuid,
@@ -241,25 +241,24 @@ Aqui estão as consultas SQL executadas para responder às perguntas específica
 
 ```sql
 SELECT SalesOrderID, COUNT(*) as QuantidadeDeLinhas
-FROM sales_order_detail
+FROM [dbo].[Sales.SalesOrderDetail_modified]
 GROUP BY SalesOrderID
 HAVING COUNT(*) >= 3;
 ```
 ### 2. Os 3 Produtos Mais Vendidos por Dias para Manufatura
 ```sql
-SELECT pp.Name AS ProductName, pp.days_to_manufacture, SUM(sod.OrderQty) AS TotalQuantitySold
-FROM sales_order_detail sod
-INNER JOIN production_product pp ON sod.ProductID = pp.productid
-GROUP BY pp.Name, pp.days_to_manufacture
-ORDER BY SUM(sod.OrderQty) DESC
-LIMIT 3;
+SELECT TOP 3 pp.Name AS ProductName, pp.DaysToManufacture, SUM(sod.OrderQty) AS TotalQuantitySold
+FROM [dbo].[Sales.SalesOrderDetail_modified] sod
+INNER JOIN [dbo].[Production.Product_modified] pp ON sod.ProductID = pp.productid
+GROUP BY pp.Name, pp.DaysToManufacture
+ORDER BY SUM(sod.OrderQty) DESC;
 ```
 ### 3. Lista de Clientes e Contagem de Pedidos
 ```sql
-SELECT p.FirstName, p.LastName, COUNT(soh.SalesOrderID) as ContagemPedidos
-FROM person p
-JOIN customer c ON p.BusinessEntityID = c.PersonID
-JOIN sales_order_header soh ON c.CustomerID = soh.CustomerID
+Select p.FirstName, p.LastName, COUNT(soh.SalesOrderID) as ContagemPedidos
+FROM [dbo].[Person.Person_modified] p
+Join [dbo].[Sales.Customer_modified] c ON p.BusinessEntityID = c.PersonID
+JOIN [dbo].[salesorderheader] soh ON c.CustomerID = soh.CustomerID
 GROUP BY p.FirstName, p.LastName;
 ```
 ### 4. Soma Total de Produtos por ProductID e OrderDate
@@ -269,11 +268,11 @@ SELECT
     soh.orderdate AS OrderDate,
     SUM(sod.orderqty) AS TotalOrderQty
 FROM 
-    sales_order_detail sod
+    [dbo].[Sales.SalesOrderDetail_modified] sod
 INNER JOIN 
-    sales_order_header soh ON sod.salesorderid = soh.salesorderid
+    [dbo].[salesorderheader] soh ON sod.salesorderid = soh.salesorderid
 INNER JOIN 
-    production_product pp ON sod.productid = pp.productid
+    [dbo].[Production.Product_modified] pp ON sod.productid = pp.productid
 GROUP BY 
     pp.productid, soh.orderdate
 ORDER BY 
@@ -284,8 +283,8 @@ ORDER BY
 
 ```sql
 SELECT salesOrderID, orderdate, totaldue
-FROM sales_order_header
-WHERE EXTRACT(YEAR FROM orderdate) = 2011 AND EXTRACT(MONTH FROM orderdate) = 9 AND totaldue > 1000
+FROM [dbo].[salesorderheader]
+WHERE YEAR(orderdate) = 2011 AND MONTH(orderdate) = 9 AND totaldue > 1000
 ORDER BY totaldue DESC;
 ```
 
